@@ -3,6 +3,7 @@ import '../screens/call_list.dart' show CallList;
 import '../screens/people_list.dart';
 import '../screens/settings.dart';
 import '../screens/chat_list.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -12,7 +13,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  var _selectedIndex = 1;
+  var _selectedIndex = 0;
   final List<Widget> screens = const [
     ChatList(),
     CallList(),
@@ -24,10 +25,18 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text(
-        'Chat Clone',
-        style: TextStyle(color: Color(0xff263b43)),
-      )),
+        title: const Text(
+          'Chat Clone',
+          style: TextStyle(color: Color(0xff263b43)),
+        ),
+        actions: [
+          IconButton(
+              onPressed: () {
+                FirebaseAuth.instance.signOut();
+              },
+              icon: Icon(Icons.logout))
+        ],
+      ),
       body: screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const [
