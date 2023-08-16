@@ -4,6 +4,8 @@ import '../screens/people_list.dart';
 import '../screens/settings.dart';
 import '../screens/chat_list.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import '../../logic/UserProfileData.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -26,15 +28,18 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Chat Clone',
+          'Chatclone',
           style: TextStyle(color: Color(0xff263b43)),
         ),
         actions: [
           IconButton(
               onPressed: () {
+                Provider.of<UserProfileData>(context, listen: false)
+                    .setUserDataNull();
+
                 FirebaseAuth.instance.signOut();
               },
-              icon: Icon(Icons.logout))
+              icon: const Icon(Icons.logout))
         ],
       ),
       body: screens[_selectedIndex],

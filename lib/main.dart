@@ -5,6 +5,9 @@ import 'view/home/home.dart';
 import './view/screens/register_with_phone.dart';
 import './firebase_options.dart';
 import './view/screens/splash_screen.dart';
+import './view/screens/profile_info.dart';
+import 'package:provider/provider.dart';
+import './logic/UserProfileData.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +23,9 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return ChangeNotifierProvider.value(
+      value: UserProfileData(),
+      child: MaterialApp(
         title: 'Chat Clone',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
@@ -31,18 +36,39 @@ class MyApp extends StatelessWidget {
           //colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber),
           useMaterial3: true,
         ),
-        home: StreamBuilder(
-          stream: FirebaseAuth.instance.authStateChanges(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const SplashScreen();
-            }
-            if (snapshot.hasData) {
-              return const Home();
-            }
+        home: const AuthenticationState(),
+      ),
+    );
+  }
+}
 
-            return const RegisterWithPhoneNumber();
-          },
-        ));
+class AuthenticationState extends StatelessWidget {
+  const AuthenticationState({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SplashScreen();
+        }
+        if (snapshot.hasData) {
+          if (snapshot.data!.displayName != '' &&
+              snapshot.data!.displayName != null) {
+            return const Home();
+          } else {
+            return ProfileInfo(
+              phoneNo: snapshot.data!.phoneNumber!,
+              isThisFirstScreen: true,
+            );
+          }
+        }
+
+        return const RegisterWithPhoneNumber();
+      },
+    );
   }
 }

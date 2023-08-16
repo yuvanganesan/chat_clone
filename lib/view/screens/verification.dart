@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pinput/pinput.dart';
+import './profile_info.dart';
 
 class Verificatoin extends StatefulWidget {
   final String? phone;
@@ -22,7 +23,6 @@ class _VerificatoinState extends State<Verificatoin> {
   int? _resendToken;
   final _otp = TextEditingController();
 
-  // late Timer _timer = Timer(const Duration(milliseconds: 1), () {});
   late Timer _resendTimer = Timer(const Duration(milliseconds: 1), () {});
   int _start = 60;
   int _currentIndex = 0;
@@ -71,6 +71,7 @@ class _VerificatoinState extends State<Verificatoin> {
             _verificationId = verificationId;
             _resendToken = resendToken;
             Navigator.of(context).pop();
+
             resend();
           },
           codeAutoRetrievalTimeout: (String verificationId) {
@@ -84,6 +85,7 @@ class _VerificatoinState extends State<Verificatoin> {
       //back to getOTP() to extecute code after verifyPhoneNumber() which is the below showDialog()
       //and at last this dialog will pop when otp generated and send to user, that is codeSend argument in
       //verifyPhoneNumber() executed
+
       // ignore: use_build_context_synchronously
       showDialog(
           barrierDismissible: false,
@@ -139,6 +141,7 @@ class _VerificatoinState extends State<Verificatoin> {
       _isLoading = true;
     });
     FirebaseAuth auth = FirebaseAuth.instance;
+
     try {
       PhoneAuthCredential credential = PhoneAuthProvider.credential(
           verificationId: _verificationId, smsCode: _code);
@@ -146,9 +149,17 @@ class _VerificatoinState extends State<Verificatoin> {
       // Sign the user in (or link) with the credential
 
       await auth.signInWithCredential(credential);
+      await auth.currentUser!.updateDisplayName('');
 
       // ignore: use_build_context_synchronously
-      Navigator.of(context).pop();
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (context) {
+          return ProfileInfo(
+            phoneNo: widget.phone,
+            isThisFirstScreen: false,
+          );
+        },
+      ));
     } catch (error) {
       //print(error.toString());
       ScaffoldMessenger.of(context)
